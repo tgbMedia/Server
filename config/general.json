@@ -1,0 +1,5 @@
+{
+	"assetsDir": "storage/assets/",
+	"tmdbPosterUrl": "https://image.tmdb.org/t/p/w640/",
+	"tmdbBackdropUrl": "https://image.tmdb.org/t/p/w1300_and_h730_bestv2/"
+}
