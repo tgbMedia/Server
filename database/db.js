@@ -16,4 +16,7 @@ module.exports['Movie'] = sequelize.import(path.resolve(__dirname, 'Movie'));
 module.exports['MediaFile'] = sequelize.import(path.resolve(__dirname, 'MediaFile'));
 
 
+module.exports['Movie'].hasMany(module.exports['MediaFile'], {foreignKey: 'mediaId', sourceKey: 'id'});
+module.exports['MediaFile'].belongsTo(module.exports['Movie'], {foreignKey: 'mediaId', targetKey: 'id'});
+
 module.exports.sequelize = sequelize;

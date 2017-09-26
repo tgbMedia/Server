@@ -1,12 +1,33 @@
-var db = require('./database/db.js'),
-	metadata = require('./metadata.js')
-	config = require('./config/tests.json');
+process.env.NODE_PATH = __dirname;
+require('module').Module._initPaths();
 
-db.sequelize.sync().then(() => {
-	metadata.addMediaDir(config.mediaDir, 'movies', (err, result) => {
-		
+const db = require('database/db.js'),
+	  metadata = require('modules/metadata'),
+	  async = require('async'),
+	  config = require('./config/tests.json');
+
+metadata.refreshDir(config.mediaDir, "movies")
+	.then(result => {
+		console.log(result);
+	})
+	.catch(err => {
+		console.log(err);
 	});
-});
+
+
+//metadata.getD();
+
+// var db = require('./database/db.js'),
+// 	metadata = require('./metadata.js')
+// 	config = require('./config/tests.json');
+
+// //TODO: https://darrenderidder.github.io/talks/ModulePatterns/#/
+
+// db.sequelize.sync().then(() => {
+// 	metadata.addOrRefreshMediaDir(config.mediaDir, 'movies', (err, result) => {
+		
+// 	});
+// });
 //
 
 

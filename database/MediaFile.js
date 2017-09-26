@@ -2,26 +2,25 @@
 
 module.exports = function(sequelize, Sequelize) {
 	var MediaFile = sequelize.define("mediaFiles", {
-		id: {
+		dirId: {
 			type: Sequelize.UUID,
-			defaultValue: Sequelize.UUIDV4,
-			primaryKey: true
+			allowNull: false
 		},
 		path: {
 			type: Sequelize.STRING,
 			allowNull: false,
 			unique: true,
 		},
-		dirId: {
-			type: Sequelize.UUID,
+		mediaId: {
+			type: Sequelize.INTEGER,			
 			allowNull: false
-		}
+		}		
 	}, 
 	{
 		indexes:[
 			{
 				unique: true,
-				fields: ['path', 'dirId']
+				fields: ['dirId', 'path']
 			},
 		]
 	});

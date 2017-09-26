@@ -1,0 +1,4 @@
+{
+	"maxConcurrentRequests": 5,
+	"intervalBetweenChunck": 1800
+}

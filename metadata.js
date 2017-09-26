@@ -36,7 +36,7 @@ module.exports = {
 			.findAll({ where: { type: mediaType } });
 	},
 
-	addMediaDir: function(dirPath, mediaType, cb){
+	addOrRefreshMediaDir: function(dirPath, mediaType, cb){
 
 		fs.stat(dirPath, (err, stats) => {
 			if(err)
@@ -69,10 +69,11 @@ module.exports = {
 						});
 				},
 				(mediaDir, mediaFiles, completedCb) => {
+					let results = [];
 
 					//Filter files if doesn't exists in disk or already exists in DB
 					async.filter(
-						mediaFiles, 
+						mediaFiles.slice(0, 5), 
 						(filePath, filterCb) => {
 							fs.access(path.join(mediaDir.path, filePath), function(err) {
 								if(err)
@@ -81,14 +82,17 @@ module.exports = {
 					    		db.MediaFile.find({where: {dirId: mediaDir.id, path : filePath}})
 					    			.then(mediaFile => {
 					    				//This file exists in DB? 
-					    				filterCb(null, mediaFile == null);
+					    				if(mediaFile == null)
+					    					filterCb(null, true);
+					    				else
+					    				{
+					    					filterCb(null, false);
+					    				}
 					    			})
-					    			.catch(err => {
-					    				filterCb(null, false);
-					    			});
 						    });
 						},
 						(err, filesToScan) => {
+
 							if(filesToScan.length < 1)
 								return completedCb(); //Done!
 
@@ -97,13 +101,20 @@ module.exports = {
 
 							this.moviesInfo(
 						    	filesToScan, 
-						    	(currentMediaFile, movieInfo, taskCompletedCb) => {
+						    	(currentMediaFilePath, movieInfo, taskCompletedCb) => {
 						    		//console.log(movieInfo.original_title);
 
 						    		db.Movie.find({where: {id: movieInfo.id}})
 						    			.then(movie => {
 						    				if(movie != null)
-						    					return taskCompletedCb();
+						    				{
+						    					this.assignMediaFile(mediaDir.id, currentMediaFilePath, movie.id)
+						    						.then(() => {
+														taskCompletedCb(null, movie);
+													});
+
+						    					return;
+						    				}
 
 						    				console.log("New movie: " + movieInfo.original_title);
 
@@ -111,8 +122,12 @@ module.exports = {
 											db.Movie.create(movieInfo)
 												.then(movie => {
 													this.downloadMovieAssets(movieInfo, () => {
-														console.log(movieInfo.original_title + " Is ready");
-														taskCompletedCb();
+														//console.log(movieInfo.original_title + " Is ready");
+														this.assignMediaFile(mediaDir.id, currentMediaFilePath, movie.id)
+															.then(() => {
+																taskCompletedCb(null, movie);
+															})
+														
 													});		
 												})
 						    			});
@@ -123,7 +138,11 @@ module.exports = {
 						});
 
 				}
-			], function (err, result) {
+			], function (err, results) {
+				results.forEach(movie => {
+					console.log(movie.original_title);
+				})
+
 				console.log("Completed")
 			});
 		})
@@ -135,7 +154,13 @@ module.exports = {
 		});
 	},
 
-	//insertMediaFile: function(dirId, )
+	assignMediaFile: function(directoryId, filePath, mediaItemId){
+		return db.MediaFile.create({
+			dirId: directoryId,
+			path: filePath,
+			mediaId: mediaItemId
+		})
+	},
 
 	movieInfo: function(title, callback){
 		mdb.searchMovie({ query: title }, (err, res) => {
@@ -207,6 +232,7 @@ module.exports = {
 
 	moviesInfo: function(movies, movieInfoCb, completedCb){
 		let tasks = [];
+		let moviesResults = [];
 		
 		movies.splice(0, MAX_CONCURRENT_REQUESTS).forEach(file => {
 			tasks.push(taskCb => {
@@ -228,11 +254,13 @@ module.exports = {
 			})
 		});
 
-		async.parallel(tasks, () => {
+		async.parallel(tasks, (err, results) => {
+			moviesResults = moviesResults.concat(results);
+
 			if(movies.length > 0)
 				return setTimeout(() => this.moviesInfo(movies, movieInfoCb, completedCb), CHUNCK_INTERVAL * 1000);
 
-			completedCb();
+			completedCb(null, moviesResults);
 		});
 	}
 
