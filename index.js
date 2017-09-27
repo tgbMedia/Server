@@ -4,7 +4,9 @@ require('module').Module._initPaths();
 const db = require('database/db.js'),
 	  metadata = require('modules/metadata'),
 	  async = require('async'),
+	  Prmoise = require('bluebird'),
 	  config = require('./config/tests.json');
+
 
 metadata.refreshDir(config.mediaDir, "movies")
 	.then(result => {

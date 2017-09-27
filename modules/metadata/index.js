@@ -53,24 +53,32 @@ async function refreshDir(dirPath, mediaType){
 		await removeMediaFiles(dir.id, removedFiles);
 
 	//Load metadata for the new files
-	let newFiles = _.map(
-		_.difference(existsMediaFiles, mediaFilesFromDb),
-		filePath => {
-			return movieInfo(filePath);
-		}
-	);
+	let newFiles = _.difference(existsMediaFiles, mediaFilesFromDb);
+
+	//Convert files path to tasks
+	newFiles = _.map(newFiles, filePath => {
+		return movieInfo(filePath);
+	});
 	
-	tasksManager.resetTasksList(newFiles);
+	//Get metadata for the new files
+	await tasksManager.runTasks(newFiles);
+
+	console.log('Done:!!!');
+
 
 	return true;
 }
 
 function movieInfo(filePath){
-	return new Promise((resolve) => {
-		console.log("DFSfdsfsd");
+	return (callback) => {
 		let movieDetails = ptn(path.basename(filePath));
+		callback(null, movieDetails);
+	};
+	/*return new Promise((resolve) => {
+		console.log("DFSfdsfsd");
+		
 		resolve(movieDetails.title);
-	})
+	})*/
 }
 
 function searchMediaFiles(path){
