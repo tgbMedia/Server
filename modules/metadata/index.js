@@ -6,8 +6,8 @@ const //async = require('async')
 	  db = require('database/db'),
 	  config = require('config/metadata'),
 	  TasksManager = require('modules/tasksManager'),
-	  tmdbConfig = require('config/tmdb'),
-	  mdb = require('moviedb')(tmdbConfig.apiKey)
+	  tmdb = require('modules/tmdb'),
+	  downloadsManager = require('modules/downloadsManager')
 	  videoExtensions = require('config/videoFilesExtensions').join(',');
 
 const tasksManager = new TasksManager(
@@ -56,30 +56,60 @@ async function refreshDir(dirPath, mediaType){
 	let newFiles = _.difference(existsMediaFiles, mediaFilesFromDb);
 
 	//Convert files path to tasks
-	newFiles = _.map(newFiles, filePath => {
-		return movieInfo(filePath);
+	newFiles = _.map(newFiles.slice(0, 5), filePath => {
+		return newMediaFile(dir, filePath, mediaType);
 	});
 	
 	//Get metadata for the new files
 	await tasksManager.runTasks(newFiles);
 
-	console.log('Done:!!!');
-
-
 	return true;
 }
 
-function movieInfo(filePath){
-	return (callback) => {
-		let movieDetails = ptn(path.basename(filePath));
-		callback(null, movieDetails);
+function newMediaFile(dir, filePath, mediaType){
+	let run = async(callback) => {
+		let fileName = ptn(path.basename(filePath));
+
+		try{
+			//Get file details from TMDB or another service by the media type
+			let fileDetails = undefined;
+
+			switch(mediaType){
+				case 'movies':
+					fileDetails = await tmdb.getMovieInfoByTitle(fileName.title);
+					break;
+			}
+
+			//No file details?
+			if(fileDetails == undefined)
+				return callback('No file details', null);
+
+			//Save the new details
+			// fileDetails = await db[mediaType].create(fileDetails);
+
+			switch(mediaType){
+				case 'movies':
+					await tmdb.downloadMovieAssets(fileDetails);
+					break;
+			}
+
+			//Download assets
+
+			console.log(fileDetails);
+
+		}
+		catch(err){
+			console.log(err);
+		}
+
+
+
+		callback(null, fileName);
 	};
-	/*return new Promise((resolve) => {
-		console.log("DFSfdsfsd");
-		
-		resolve(movieDetails.title);
-	})*/
+
+	return callback => run(callback);
 }
+
 
 function searchMediaFiles(path){
 	return new Promise((resolve, reject) => {

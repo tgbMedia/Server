@@ -12,11 +12,11 @@ var sequelize = new Sequelize(config);
 
 //Define models
 module.exports['MediaDir'] = sequelize.import(path.resolve(__dirname, 'MediaDir'));
-module.exports['Movie'] = sequelize.import(path.resolve(__dirname, 'Movie'));
+module.exports['movies'] = sequelize.import(path.resolve(__dirname, 'Movie'));
 module.exports['MediaFile'] = sequelize.import(path.resolve(__dirname, 'MediaFile'));
 
 
-module.exports['Movie'].hasMany(module.exports['MediaFile'], {foreignKey: 'mediaId', sourceKey: 'id'});
-module.exports['MediaFile'].belongsTo(module.exports['Movie'], {foreignKey: 'mediaId', targetKey: 'id'});
+module.exports['movies'].hasMany(module.exports['MediaFile'], {foreignKey: 'mediaId', sourceKey: 'id'});
+module.exports['MediaFile'].belongsTo(module.exports['movies'], {foreignKey: 'mediaId', targetKey: 'id'});
 
 module.exports.sequelize = sequelize;

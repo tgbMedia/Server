@@ -8,13 +8,16 @@ const db = require('database/db.js'),
 	  config = require('./config/tests.json');
 
 
-metadata.refreshDir(config.mediaDir, "movies")
-	.then(result => {
-		console.log(result);
-	})
-	.catch(err => {
-		console.log(err);
-	});
+db.sequelize.sync().then(() => {
+	metadata.refreshDir(config.mediaDir, "movies")
+		.then(result => {
+			 console.log(result);
+		})
+		.catch(err => {
+			console.log(err);
+		});
+});
+
 
 
 //metadata.getD();
