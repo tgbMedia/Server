@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(sequelize, Sequelize) {
-	var MediaDir = sequelize.define("mediaDirectories", {
+	var MediaDir = sequelize.define("mediaDirs", {
 		id: {
 			type: Sequelize.UUID,
 			defaultValue: Sequelize.UUIDV4,

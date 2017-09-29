@@ -8,6 +8,6 @@
 		"idle": 10000
 	},
 	
-	"storage": "storage/db.sqlite",
+	"storage": "storage/database.sqlite",
 	"logging": false
 }

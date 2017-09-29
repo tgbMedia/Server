@@ -32,14 +32,16 @@ TaskManager.prototype.run = function(tasksList, callback){
 		if(tasksList.length > 0)
 		{
 			return setTimeout(
-				() => this.run(tasksList, callback), 
+				() => {
+					this.run(tasksList, callback)
+				}, 
 				this.intervalBetweenBulks
 			);
 		}
 
 
 		//Done
-		callback(err, this.results);
+		callback(null, this.results);
 	});
 }
 

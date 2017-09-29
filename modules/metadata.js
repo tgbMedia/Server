@@ -3,7 +3,7 @@ const //async = require('async')
 	  glob = require('glob'),
 	  _ = require('lodash'),
 	  ptn = require('parse-torrent-name'),
-	  db = require('database/db'),
+	  models = require('models'),
 	  config = require('config/metadata'),
 	  TasksManager = require('modules/tasksManager'),
 	  tmdb = require('modules/tmdb'),
@@ -72,7 +72,7 @@ function newMediaFile(dir, filePath, mediaType){
 
 		try{
 			if(typeof fileName.title === 'undefined')
-				return callback('Failed to parse filename');
+				return callback('Failed to parse filename', null);
 
 			//Get file details from TMDB or another service by the media type
 			let fileDetails = undefined;
@@ -88,7 +88,7 @@ function newMediaFile(dir, filePath, mediaType){
 				return callback('No file details', null);
 
 			//Create or update item in the database
-			await db[mediaType].upsert(fileDetails);
+			await models[mediaType].upsert(fileDetails);
 
 			//Download assets
 			switch(mediaType){
@@ -106,10 +106,9 @@ function newMediaFile(dir, filePath, mediaType){
 
 		}
 		catch(err){
-			//console.log(filePath + ", " + err);
-
+			console.log(filePath + ", " + err);
 			//Return null if failed... 
-			callback(null, null);
+			callback(err, null);
 		}
 		
 	};
@@ -127,7 +126,7 @@ function searchMediaFiles(path){
 }
 
 function getMediaFiles(dirId){
-	return db.MediaFile.findAll({
+	return models.mediaFiles.findAll({
 		where: {
 			dirId: dirId
 		}
@@ -135,7 +134,7 @@ function getMediaFiles(dirId){
 }
 
 function removeMediaFiles(dirId, filesPath){
-	return db.MediaFile.destroy({
+	return models.mediaFiles.destroy({
 		where: {
 			dirId: dirId,
 			path: filesPath
@@ -144,14 +143,14 @@ function removeMediaFiles(dirId, filesPath){
 }
 
 function createDir(dirPath, mediaType){
-	return db.MediaDir.create({
+	return models.mediaDirs.create({
 		path: dirPath,
 		type: mediaType
 	})
 }
 
 function createMediaFile(dirId, mediaId, filePath){
-	return db.MediaFile.create({
+	return models.mediaFiles.create({
 		dirId: dirId,
 		path: filePath,
 		mediaId: mediaId
@@ -159,7 +158,7 @@ function createMediaFile(dirId, mediaId, filePath){
 }
 
 function getDirByPath(dirPath){
-	return db.MediaDir.find({ 
+	return models.mediaDirs.find({ 
 		where: { 
 			path: dirPath 
 		} 
