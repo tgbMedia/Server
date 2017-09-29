@@ -1,16 +1,20 @@
-const config = require('config/tmdb'),
-	  mdb = require('moviedb')(config.apiKey),
+const secretConfig = require('config/secret'),
+	  config = require('config/tmdb'),
+	  mdb = require('moviedb')(secretConfig.tmdbApiKey),
 	  downloadsManager = require('modules/downloadsManager');
 
 function searchMovie(title){
 	return new Promise((resolve, reject) => {
 
-		mdb.searchMovie({ query: title }, (err, res) => {
+		mdb.searchMovie({ query: title }, (err, resp) => {
 			if(err)
 				return reject(err);
 
+			if(typeof resp.results == 'undefined' || resp.results.length < 1)
+				return reject('No results');
+
 			try{
-				return resolve(res['results'][0]);
+				return resolve(resp['results'][0]);
 			}
 			catch(exception){
 				return reject(exception);

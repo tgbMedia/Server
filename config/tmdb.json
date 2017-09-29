@@ -1,0 +1,6 @@
+{
+	"posterUrl": "https://image.tmdb.org/t/p/w640/",
+	"backdropUrl": "https://image.tmdb.org/t/p/w1300_and_h730_bestv2/",
+	"posterFileName" : "poster.png",
+	"backdropFileName" : "backdrop.png"
+}

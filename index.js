@@ -4,8 +4,7 @@ require('module').Module._initPaths();
 const db = require('database/db.js'),
 	  metadata = require('modules/metadata'),
 	  async = require('async'),
-	  Prmoise = require('bluebird'),
-	  config = require('./config/tests.json');
+	  config = require('./config/secret.json');
 
 
 db.sequelize.sync().then(() => {
@@ -14,7 +13,7 @@ db.sequelize.sync().then(() => {
 			 console.log(result);
 		})
 		.catch(err => {
-			console.log(err);
+			console.log("Failed: " + err);
 		});
 });
 

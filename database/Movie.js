@@ -8,8 +8,7 @@ module.exports = function(sequelize, Sequelize) {
 		},
 		original_title: {
 			type: Sequelize.STRING,
-			allowNull: false,
-			unique: true
+			allowNull: false
 		},
 		original_language: {
 			type: Sequelize.STRING,
@@ -17,7 +16,8 @@ module.exports = function(sequelize, Sequelize) {
 		},
 		imdb_id: {
 			type: Sequelize.INTEGER,
-			allowNull: true
+			allowNull: true,
+			unique: true
 		},
 		overview: {
 			type: Sequelize.STRING,

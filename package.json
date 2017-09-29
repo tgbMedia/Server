@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "dependencies": {
     "async": "^2.5.0",
-    "bluebird": "^3.5.0",
     "glob": "^7.1.2",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",

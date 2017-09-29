@@ -56,7 +56,7 @@ async function refreshDir(dirPath, mediaType){
 	let newFiles = _.difference(existsMediaFiles, mediaFilesFromDb);
 
 	//Convert files path to tasks
-	newFiles = _.map(newFiles.slice(0, 5), filePath => {
+	newFiles = _.map(newFiles, filePath => {
 		return newMediaFile(dir, filePath, mediaType);
 	});
 	
@@ -71,6 +71,9 @@ function newMediaFile(dir, filePath, mediaType){
 		let fileName = ptn(path.basename(filePath));
 
 		try{
+			if(typeof fileName.title === 'undefined')
+				return callback('Failed to parse filename');
+
 			//Get file details from TMDB or another service by the media type
 			let fileDetails = undefined;
 
@@ -84,27 +87,31 @@ function newMediaFile(dir, filePath, mediaType){
 			if(fileDetails == undefined)
 				return callback('No file details', null);
 
-			//Save the new details
-			// fileDetails = await db[mediaType].create(fileDetails);
+			//Create or update item in the database
+			await db[mediaType].upsert(fileDetails);
 
+			//Download assets
 			switch(mediaType){
 				case 'movies':
 					await tmdb.downloadMovieAssets(fileDetails);
 					break;
 			}
 
-			//Download assets
+			//Create new media file
+			let mediaFile = await createMediaFile(dir.id, fileDetails.id, filePath);
 
-			console.log(fileDetails);
+			//console.log(fileDetails);
+			console.log(fileDetails.original_title);
+			callback(null, fileDetails);
 
 		}
 		catch(err){
-			console.log(err);
+			//console.log(filePath + ", " + err);
+
+			//Return null if failed... 
+			callback(null, null);
 		}
-
-
-
-		callback(null, fileName);
+		
 	};
 
 	return callback => run(callback);
@@ -140,6 +147,14 @@ function createDir(dirPath, mediaType){
 	return db.MediaDir.create({
 		path: dirPath,
 		type: mediaType
+	})
+}
+
+function createMediaFile(dirId, mediaId, filePath){
+	return db.MediaFile.create({
+		dirId: dirId,
+		path: filePath,
+		mediaId: mediaId
 	})
 }
 
