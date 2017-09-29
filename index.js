@@ -6,14 +6,10 @@ const models = require('models'),
 	  async = require('async'),
 	  config = require('config/secret.json');
 
-
-models.sequelize.sync().then(() => {
-	metadata.refreshDir(config.mediaDir, "movies")
-		.then(result => {
-			 console.log(result);
-		})
-		.catch(err => {
-			console.log("Failed: " + err);
-		});
-});
+models.sequelize.sync()
+	.then(() => {
+		return metadata.refreshDir(config.mediaDir, 'movies')
+	})
+	.then(() => console.log('Completed'))
+	.catch((err) => console.log('Failed: ' + err));
 
