@@ -1,0 +1,19 @@
+{
+	"tempDirectory": "storage/temp",
+	"defaultSettings": {
+		"videoCodec": "libx264",
+		"audioCodec": "libmp3lame",
+		"audioBitrate": 128,
+		"size": "65%",
+		"outputFormat": "segment",
+		"outputFileNameFormat": "%d.ts",
+
+		"outputOptions": [
+			"-profile:v main",
+			"-preset:v ultrafast",
+			"-segment_time 10",
+			"-segment_format mpegts",
+			"-flags -global_header"
+		]
+	}
+}
