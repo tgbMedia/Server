@@ -9,5 +9,6 @@
 	},
 	
 	"storage": "storage/database.sqlite",
-	"logging": false
+	"logging": false,
+	"operatorsAliases": false
 }

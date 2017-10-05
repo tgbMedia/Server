@@ -1,13 +1,11 @@
-const _ = require('lodash');
+const _ = require('lodash'),
 	  models = require('models');
 
 async function getDirectoriesByType(mediaType){
 	try{
-		let dirs = await models.mediaDirs.findAll({
+		return await models.mediaDirs.findAll({
 			type: mediaType
 		});
-
-		return dirs;
 	}
 	catch(err){}
 
@@ -77,4 +75,4 @@ async function getMediaItemsByType(mediaType){
 module.exports = {
 	getDirs: getDirectoriesByType,
 	getMediaItems: getMediaItemsByType
-}
+};

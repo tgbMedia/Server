@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "dependencies": {
     "async": "^2.5.0",
+    "coffee-script": "^1.12.7",
     "fluent-ffmpeg": "^2.1.2",
+    "generic-pool": "^3.1.8",
     "glob": "^7.1.2",
+    "inflection": "^1.12.0",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
-    "moviedb": "^0.2.8",
+    "movie-list": "^3.0.1",
+    "moviedb": "^0.2.10",
+    "nan": "^2.7.0",
+    "nodemon": "^1.12.1",
     "parse-torrent-name": "^0.5.4",
-    "sequelize": "^4.4.3",
-    "sqlite3": "^3.1.11"
+    "retry-as-promised": "^2.3.1",
+    "sequelize": "^4.13.5",
+    "sqlite3": "^3.1.13"
   }
 }

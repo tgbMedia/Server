@@ -7,7 +7,6 @@ const //async = require('async')
 	  config = require('config/metadata'),
 	  TasksManager = require('modules/tasksManager'),
 	  tmdb = require('modules/tmdb'),
-	  downloadsManager = require('modules/downloadsManager')
 	  videoExtensions = require('config/videoFilesExtensions').join(',');
 
 const tasksManager = new TasksManager(
@@ -19,7 +18,7 @@ async function refreshDir(dirPath, mediaType){
 	let dir = await getDirByPath(dirPath);
 
 	//Dir doesn't exists
-	if(dir == undefined)
+	if(!dir)
 	{
 		try{
 			dir = await createDir(dirPath, mediaType);
@@ -30,11 +29,11 @@ async function refreshDir(dirPath, mediaType){
 	}
 
 	//Failed to create new directory?
-	if(dir == null)
-		throw new Error("Could not find the directory")
+	if(!dir)
+		throw new Error("Could not find the directory");
 
 	//This directory type is already defined as another value?
-	if(dir.type != mediaType)
+	if(dir.type.toUpperCase() !== mediaType.toUpperCase())
 		throw new Error("This directory type is already defined as: " + dir.type);
 
 	//Load files list from the database
@@ -84,7 +83,7 @@ function newMediaFile(dir, filePath, mediaType){
 			}
 
 			//No file details?
-			if(fileDetails == undefined)
+			if(!fileDetails)
 				return callback('No file details', null);
 
 			//Create or update item in the database
@@ -98,10 +97,10 @@ function newMediaFile(dir, filePath, mediaType){
 			}
 
 			//Create new media file
-			let mediaFile = await createMediaFile(dir.id, fileDetails.id, filePath);
+			await createMediaFile(dir.id, fileDetails.id, filePath);
 
 			//console.log(fileDetails);
-			console.log(fileDetails.original_title);
+			// console.log(fileDetails.original_title);
 			callback(null, fileDetails);
 
 		}
@@ -118,7 +117,7 @@ function newMediaFile(dir, filePath, mediaType){
 
 
 function searchMediaFiles(path){
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		glob(`**/*.{${videoExtensions}}`,  {cwd: path},  (err, files) => {
 			resolve(err ? [] : files);
 		});
