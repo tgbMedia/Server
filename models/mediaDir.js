@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(sequelize, Sequelize) {
-	var MediaDir = sequelize.define("mediaDirs", {
+	let MediaDir = sequelize.define("mediaDirs", {
 		id: {
 			type: Sequelize.UUID,
 			defaultValue: Sequelize.UUIDV4,
@@ -12,15 +12,15 @@ module.exports = function(sequelize, Sequelize) {
 			allowNull: false,
 			unique: true
 		},
-		lastModified: {
-			type: Sequelize.DATE,
-			defaultValue: null
-		},
 		type: {
 			type: Sequelize.ENUM,
 			values: ['movies', 'shows', 'music', 'images'],
 			allowNull: false
-		}
+		},
+        lastModified: {
+            type: Sequelize.DATE,
+            defaultValue: null
+        },
 	});
 
 	return MediaDir;

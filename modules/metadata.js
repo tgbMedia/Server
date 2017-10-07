@@ -7,7 +7,9 @@ const util = require('util'),
 	  models = require('models'),
 	  config = require('config/metadata'),
 	  TasksManager = require('modules/tasksManager'),
+      emitter = require('modules/eventsManager'),
 	  tmdb = require('modules/tmdb'),
+      events = require('config/events'),
 	  videoExtensions = require('config/videoFilesExtensions').join(',');
 
 const fsStat = util.promisify(fs.stat);
@@ -112,11 +114,12 @@ function newMediaFile(dir, filePath, mediaType){
 			}
 
 			//Create new media file
-			await models.utils.createMediaFile(dir.id, fileDetails.id, filePath);
+			let mediaFile = await models.utils.createMediaFile(dir.id, fileDetails.id, filePath);
+            emitter.emit(events.newMedia, mediaFile, fileDetails);
 
 			//console.log(fileDetails);
 			// console.log(fileDetails.original_title);
-			callback(null, fileDetails);
+			callback(null, mediaFile, fileDetails);
 
 		}
 		catch(err){
