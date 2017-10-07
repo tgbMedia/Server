@@ -94,8 +94,14 @@ function newMediaFile(dir, filePath, mediaType){
 			let fileDetails = undefined;
 
 			switch(mediaType){
-				case 'movies':
+                case 'movies':
 					fileDetails = await tmdb.getMovieInfoByTitle(fileName.title);
+
+					//Convert genres from Array to String
+                    fileDetails.genres = fileDetails.genres.map(genre => {
+                        return genre.name;
+                    }).join(',');
+
 					break;
 			}
 

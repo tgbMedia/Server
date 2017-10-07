@@ -1,7 +1,7 @@
 const fs = require("fs"),
-	Sequelize = require('sequelize'),
-	config = require('config/database.json'),
-    modelsUtils = require('modules/modelsUtils');
+	  Sequelize = require('sequelize'),
+	  config = require('config/database.json'),
+      modelsUtils = require('modules/modelsUtils');
 
 const sequelize = new Sequelize(config);
 
@@ -15,8 +15,12 @@ fs.readdirSync(__dirname)
 		module.exports[model.name] = model;
 	});
 
-module.exports['movies'].hasMany(module.exports['mediaFiles'], {foreignKey: 'mediaId', sourceKey: 'id'});
-module.exports['mediaFiles'].belongsTo(module.exports['movies'], {foreignKey: 'mediaId', targetKey: 'id'});
+Object.keys(module.exports).forEach(modelName => {
+    let model = module.exports[modelName];
+
+    if("associate" in model)
+        model.associate(module.exports);
+});
 
 module.exports.utils = modelsUtils;
 module.exports.sequelize = sequelize;
