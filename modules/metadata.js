@@ -1,7 +1,8 @@
-const //async = require('async') 
+const util = require('util'),
 	  path = require('path'),
+	  fs = require('fs'),
+      _ = require('lodash'),
 	  glob = require('glob'),
-	  _ = require('lodash'),
 	  ptn = require('parse-torrent-name'),
 	  models = require('models'),
 	  config = require('config/metadata'),
@@ -9,19 +10,21 @@ const //async = require('async')
 	  tmdb = require('modules/tmdb'),
 	  videoExtensions = require('config/videoFilesExtensions').join(',');
 
+const fsStat = util.promisify(fs.stat);
+
 const tasksManager = new TasksManager(
 	config.maxConcurrentRequests, 
 	config.intervalBetweenChunck
 );
 
 async function refreshDir(dirPath, mediaType){
-	let dir = await getDirByPath(dirPath);
+	let dir = await models.utils.getDirByPath(dirPath);
 
 	//Dir doesn't exists
 	if(!dir)
 	{
 		try{
-			dir = await createDir(dirPath, mediaType);
+			dir = await models.utils.createDir(dirPath, mediaType);
 		}
 		catch(err){
 			throw new Error(err);
@@ -37,7 +40,7 @@ async function refreshDir(dirPath, mediaType){
 		throw new Error("This directory type is already defined as: " + dir.type);
 
 	//Load files list from the database
-	let mediaFilesFromDb = await getMediaFiles(dir.id).map(mediaFile => {
+	let mediaFilesFromDb = await models.utils.getMediaFilesByDir(dir.id).map(mediaFile => {
 		return mediaFile.path;
 	});
 
@@ -49,7 +52,7 @@ async function refreshDir(dirPath, mediaType){
 
 	//Remove deleted files from the database
 	if(removedFiles.length > 0)
-		await removeMediaFiles(dir.id, removedFiles);
+		await models.utils.removeMediaFiles(dir.id, removedFiles);
 
 	//Load metadata for the new files
 	let newFiles = _.difference(existsMediaFiles, mediaFilesFromDb);
@@ -61,6 +64,18 @@ async function refreshDir(dirPath, mediaType){
 	
 	//Get metadata for the new files
 	await tasksManager.runTasks(newFiles);
+
+	//Update last modified
+    let stat = await fsStat(dirPath);
+
+    models.mediaDirs.update(
+        {
+            lastModified: stat.mtime
+        },
+        {
+            where: {id: dir.id}
+        }
+    );
 
 	return true;
 }
@@ -97,7 +112,7 @@ function newMediaFile(dir, filePath, mediaType){
 			}
 
 			//Create new media file
-			await createMediaFile(dir.id, fileDetails.id, filePath);
+			await models.utils.createMediaFile(dir.id, fileDetails.id, filePath);
 
 			//console.log(fileDetails);
 			// console.log(fileDetails.original_title);
@@ -123,47 +138,6 @@ function searchMediaFiles(path){
 		});
 	});
 }
-
-function getMediaFiles(dirId){
-	return models.mediaFiles.findAll({
-		where: {
-			dirId: dirId
-		}
-	});
-}
-
-function removeMediaFiles(dirId, filesPath){
-	return models.mediaFiles.destroy({
-		where: {
-			dirId: dirId,
-			path: filesPath
-		}
-	});
-}
-
-function createDir(dirPath, mediaType){
-	return models.mediaDirs.create({
-		path: dirPath,
-		type: mediaType
-	})
-}
-
-function createMediaFile(dirId, mediaId, filePath){
-	return models.mediaFiles.create({
-		dirId: dirId,
-		path: filePath,
-		mediaId: mediaId
-	})
-}
-
-function getDirByPath(dirPath){
-	return models.mediaDirs.find({ 
-		where: { 
-			path: dirPath 
-		} 
-	});
-}
-
 
 module.exports = {
 	refreshDir: refreshDir

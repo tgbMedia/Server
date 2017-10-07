@@ -1,9 +1,8 @@
 const async = require('async');
 
-var TaskManager = function (maxConcurrentTasks, intervalBetweenBulks){
+const TaskManager = function (maxConcurrentTasks, intervalBetweenBulks){
 	this.maxConcurrentTasks = (maxConcurrentTasks < 1) ? 1 : maxConcurrentTasks;
 	this.intervalBetweenBulks = (intervalBetweenBulks < 0) ? 0 : intervalBetweenBulks;
-	this.waitingForNewRunCb = undefined;
 	this.results = [];
 }
 
@@ -19,7 +18,7 @@ TaskManager.prototype.runTasks = function(tasksList){
 		});
 	})
 	
-}
+};
 
 
 TaskManager.prototype.run = function(tasksList, callback){
@@ -43,7 +42,7 @@ TaskManager.prototype.run = function(tasksList, callback){
 		//Done
 		callback(null, this.results);
 	});
-}
+};
 
 
 module.exports = TaskManager;

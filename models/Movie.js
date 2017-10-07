@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(sequelize, Sequelize) {
-	var Movie = sequelize.define("movies", {
+	let Movie = sequelize.define("movies", {
 		id: {
 			type: Sequelize.INTEGER,
 			primaryKey: true
@@ -35,10 +35,10 @@ module.exports = function(sequelize, Sequelize) {
 			type: Sequelize.DATE,
 			allowNull: true
 		},
-		vote_average: {
-			type: Sequelize.FLOAT,
-			allowNull: true
-		}
+        vote_average: {
+            type: Sequelize.FLOAT,
+            allowNull: true
+        }
 	});
 
 	return Movie;

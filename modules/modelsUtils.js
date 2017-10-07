@@ -1,6 +1,17 @@
 const _ = require('lodash'),
 	  models = require('models');
 
+function createDir(dirPath, mediaType){
+    return models.mediaDirs.create({
+        path: dirPath,
+        type: mediaType
+    });
+}
+
+function getAllDirs(){
+    return models.mediaDirs.findAll();
+}
+
 async function getDirectoriesByType(mediaType){
 	try{
 		return await models.mediaDirs.findAll({
@@ -12,6 +23,14 @@ async function getDirectoriesByType(mediaType){
 	return [];
 }
 
+function getDirByPath(dirPath){
+    return models.mediaDirs.find({
+        where: {
+            path: dirPath
+        }
+    });
+}
+
 function getMediaFilesByDir(directoryId){
 	return models.mediaFiles.findAll({
 		where: {
@@ -19,6 +38,25 @@ function getMediaFilesByDir(directoryId){
 		}
 	});
 }
+
+function createMediaFile(dirId, mediaId, filePath){
+    return models.mediaFiles.create({
+        dirId: dirId,
+        path: filePath,
+        mediaId: mediaId
+    })
+}
+
+
+function removeMediaFiles(dirId, filesPath){
+    return models.mediaFiles.destroy({
+        where: {
+            dirId: dirId,
+            path: filesPath
+        }
+    });
+}
+
 
 async function getMediaItemsByType(mediaType){
 	let items = [];
@@ -73,6 +111,12 @@ async function getMediaItemsByType(mediaType){
 }
 
 module.exports = {
-	getDirs: getDirectoriesByType,
-	getMediaItems: getMediaItemsByType
+    getAllDirs: getAllDirs,
+	getDirsByType: getDirectoriesByType,
+	getMediaItems: getMediaItemsByType,
+    getDirByPath: getDirByPath,
+    getMediaFilesByDir: getMediaFilesByDir,
+    createDir: createDir,
+    removeMediaFiles: removeMediaFiles,
+    createMediaFile: createMediaFile
 };
