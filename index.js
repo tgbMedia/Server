@@ -1,7 +1,9 @@
 process.env.NODE_PATH = __dirname;
 require('module').Module._initPaths();
 
-const express = require('express'),
+const _ = require('lodash'),
+      logger = require('modules/logger'),
+      express = require('express'),
       models = require('models'),
       metadata = require('modules/metadata'),
       tasks = require('tasks'),
@@ -13,26 +15,28 @@ const app = express();
 //TODO: https://jwt.io
 
 emitter.on(events.newMedia, (file, mediaItem) => {
-    console.log('New movie ' + file.path + ', ' + mediaItem.original_title);
+    logger.silly(`New media ${file.path}, ${mediaItem.original_title}`);
 });
-
-app.get('/', function (req, res) {
-    res.send('Hello World!')
-})
 
 models.sequelize.sync()
 	.then(() => {
         console.log('Scheduled tasks ', Object.keys(tasks));
+
+        app.listen(3000, function () {
+            logger.info('Server is running');
+        });
+
+
         return metadata.refreshDir(config.mediaDir, 'movies');
 		//return models.utils.getMediaItems('movies');
 
 	})
-	.then(() => {
-        app.listen(3000, function () {
-            console.log('Running');
-        })
-
-    })
-	//.then((results) => console.log(results))
-	.catch((err) => console.log('Failed: ' + err));
+	.catch((reason) => {
+        logger.error({
+            message: 'Failed to start the server',
+            extra: {
+                reason: reason
+            }
+        });
+    });
 

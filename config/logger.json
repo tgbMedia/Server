@@ -1,0 +1,6 @@
+{
+  "logsDir": "logs",
+  "errors": "errors",
+  "verbose": "verbose",
+  "logExtension": ".log"
+}

@@ -2,6 +2,7 @@ const util = require('util'),
 	  path = require('path'),
 	  fs = require('fs'),
       _ = require('lodash'),
+	  logger = require('modules/logger'),
 	  glob = require('glob'),
 	  ptn = require('parse-torrent-name'),
 	  models = require('models'),
@@ -29,13 +30,31 @@ async function refreshDir(dirPath, mediaType){
 			dir = await models.utils.createDir(dirPath, mediaType);
 		}
 		catch(err){
+            logger.error({
+                message: 'Failed to create new directory',
+                extra: {
+                    dirPath: dirPath,
+                    mediaType: mediaType
+                }
+            });
+
 			throw new Error(err);
 		}
 	}
 
 	//Failed to create new directory?
 	if(!dir)
-		throw new Error("Could not find the directory");
+    {
+        logger.warn({
+            message: 'Failed to get/create directory row',
+            extra: {
+                dirPath: dirPath,
+                mediaType: mediaType
+            }
+        });
+
+        throw new Error('Failed to get/create directory row ');
+    }
 
 	//This directory type is already defined as another value?
 	if(dir.type.toUpperCase() !== mediaType.toUpperCase())
@@ -61,7 +80,20 @@ async function refreshDir(dirPath, mediaType){
 
 	//Convert files path to tasks
 	newFiles = _.map(newFiles, filePath => {
-		return newMediaFile(dir, filePath, mediaType);
+		try{
+            return newMediaFile(dir, filePath, mediaType);
+		}
+		catch(err){
+			console.log(err);
+            logger.error({
+                message: `Failed to create media file`,
+                extra: {
+                    dir: dir.path,
+                    filePath: filePath,
+                    mediaType: mediaType
+                }
+            });
+		}
 	});
 	
 	//Get metadata for the new files
@@ -129,7 +161,15 @@ function newMediaFile(dir, filePath, mediaType){
 
 		}
 		catch(err){
-			console.log(filePath + ", " + err);
+		    //No details
+			logger.warn({
+                message: `${path.resolve(dir.path, filePath)} ${err}`,
+                extra: {
+                    filePath: path.resolve(dir.path, filePath),
+                    ptn: fileName
+                }
+            });
+
 			//Return null if failed... 
 			callback(err, null);
 		}

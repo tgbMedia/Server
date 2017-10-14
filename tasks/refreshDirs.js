@@ -1,5 +1,6 @@
 const util = require('util'),
       _ = require('lodash'),
+      logger = require('modules/logger'),
       models = require('models'),
       fs = require('fs'),
       metadata = require('modules/metadata');
@@ -26,6 +27,13 @@ module.exports = {
                         await metadata.refreshDir(dir.path, dir.type)
                     }
                     catch (err) {
+                        logger.warn({
+                            message: 'Failed to refresh directory',
+                            extra: {
+                                dirPath: dir.path,
+                                reason: err
+                            }
+                        });
                         console.err(err);
                     }
                 }
@@ -33,7 +41,12 @@ module.exports = {
             });
         }
         catch(err){
-            console.log("RereshDirs: " + err);
+            logger.error({
+                message: 'Mission failed',
+                extra: {
+                    reason: err
+                }
+            });
         }
     }
 };

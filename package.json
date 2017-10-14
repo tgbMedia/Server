@@ -26,7 +26,8 @@
     "moviedb": "^0.2.10",
     "parse-torrent-name": "^0.5.4",
     "sequelize": "^4.13.5",
-    "sqlite3": "^3.1.13"
+    "sqlite3": "^3.1.13",
+    "winston": "^3.0.0-rc0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
