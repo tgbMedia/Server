@@ -25,7 +25,19 @@ const logger = createLogger({
             filename: path.resolve(config.logsDir, `${config.verbose}${config.logExtension}`)
         }),
         new transports.Console({ level: 'silly' })
-    ]
+    ],
+    exceptionHandlers: [
+        new transports.File({
+            filename: path.resolve(config.logsDir, `${config.fatalErrors}${config.logExtension}`),
+            format: combine(
+                printf(info => {
+                    return JSON.stringify(info);
+                })
+            )
+        }),
+        new transports.Console()
+    ],
+    exitOnError: false
 });
 
 module.exports = logger;

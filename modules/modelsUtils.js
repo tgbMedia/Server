@@ -100,8 +100,6 @@ async function getMediaItemsByType(mediaType){
 
 		//Waiting for all tasks 
 		await Promise.all(tasks);
-		console.log('Completed');
-
 	}
 	catch(err){
 		console.log(err)
