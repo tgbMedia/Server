@@ -5,7 +5,7 @@ const path = require('path'),
       app = module.exports = express();
 
 
-app.use('/api', require(path.resolve(__dirname, 'api', 'index.js')));
+app.use('/api/movies/', require(path.resolve(__dirname, 'api', 'movies.js')));
 app.use('/assets', express.static(downloadsManagerConfig.assetsDirectory));
 
 module.exports.start = function(onServerRunningCb){

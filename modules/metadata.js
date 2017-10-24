@@ -127,7 +127,7 @@ function newMediaFile(dir, filePath, mediaType){
 
 			switch(mediaType){
                 case 'movies':
-					fileDetails = await tmdb.getMovieInfoByTitle(fileName.title);
+					fileDetails = await tmdb.getMovieInfoByTitle(fileName.title, fileName.year);
 
 					//Convert genres from Array to String
                     fileDetails.genres = fileDetails.genres.map(genre => {

@@ -3,13 +3,15 @@ require('module').Module._initPaths();
 
 const _ = require('lodash'),
       logger = require('modules/logger'),
-      express = require('controllers'),
+      express = require('routes'),
       models = require('models'),
       metadata = require('modules/metadata'),
       tasks = require('tasks'),
       emitter = require('modules/eventsManager'),
       events = require('config/events'),
       config = require('config/secret');
+
+
 
 //TODO: https://jwt.io
 

@@ -1,51 +1,50 @@
-const secretConfig = require('config/secret'),
-	  config = require('config/tmdb'),
-	  mdb = require('moviedb')(secretConfig.tmdbApiKey),
-	  downloadsManager = require('modules/downloadsManager');
+const _ = require('lodash'),
+      Axios = require('axios'),
+      downloadsManager = require('modules/downloadsManager'),
+      logger = require('modules/logger'),
+      secretConfig = require('config/secret'),
+	  config = require('config/tmdb');
 
-function searchMovie(title){
-	return new Promise((resolve, reject) => {
+const axios = Axios.create({
+    baseURL: config.apiBaseUrl,
+    params: {
+        api_key: secretConfig.tmdbApiKey
+    }
+});
 
-		mdb.searchMovie({ query: title }, (err, resp) => {
-			if(err)
-				return reject(err);
-
-			if(typeof resp.results == 'undefined' || resp.results.length < 1)
-				return reject('No results');
-
-			try{
-				return resolve(resp['results'][0]);
-			}
-			catch(exception){
-				return reject(exception);
-			}
-		}); //mdb.searchMovie
-
-	}); //new Promise
+function searchMovie(movieName){
+	return axios.get(`search/movie?query=${movieName}`);
 }
 
 function movieInfoById(movieId){
-	return new Promise((resolve, reject) => {
-
-		mdb.movieInfo({id: movieId}, (err, movieInfo) => {
-			if(err)
-				return reject(err);
-
-			resolve(movieInfo);
-		});//mdb.movieInfo
-
-	}); //new Promise
+    return axios.get(`movie/${movieId}`)
+        .then(response => {
+            return new Promise((resolve, reject) => {
+                resolve(response.data);
+            })
+        });
 }
 
-function movieInfoByTitle(movieTitle){
-	return searchMovie(movieTitle)
-		.then(
-			(movieDetails) => {
-				return new Promise((resolve, reject) => {
-					resolve(movieInfoById(movieDetails.id));
-				})
-			}
-		);
+function movieInfoByTitle(movieTitle, releaseYear){
+    return searchMovie(movieTitle)
+        .then(response => {
+            return new Promise((resolve, reject) => {
+                //Filter by release date for the best match
+                let moviesAfterFilter = _.filter(response.data.results, movie => {
+                   try{
+                       return new Date(movie.release_date).getFullYear() == releaseYear;
+                   }
+                   catch(err){
+                       return false;
+                   }
+                });
+
+                if(moviesAfterFilter.length > 0)
+                    return resolve(movieInfoById(moviesAfterFilter[0].id));
+
+                resolve(movieInfoById(response.data.results[0].id));
+            });
+        });
 }
 
 function downloadMovieAssets(movie){

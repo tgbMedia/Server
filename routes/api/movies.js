@@ -28,7 +28,7 @@ router.use((req, res, next) => {
 });
 
 
-router.get('/movies/list', function(req, res) {
+router.get('/list', function(req, res) {
     models.utils.getMediaItems('movies')
         .then(movies => {
             res.json(movies.map(movie => {
