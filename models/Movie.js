@@ -32,5 +32,9 @@ module.exports = function(sequelize, Sequelize) {
         vote_count: Sequelize.INTEGER
     });
 
+    Movie.associate = function(models){
+        Movie.belongsToMany(models.person, {through: 'cast'});
+    };
+
     return Movie;
 };

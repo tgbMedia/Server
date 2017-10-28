@@ -1,4 +1,5 @@
 const _ = require('lodash'),
+      path = require('path'),
       Axios = require('axios'),
       downloadsManager = require('modules/downloadsManager'),
       logger = require('modules/logger'),
@@ -17,7 +18,7 @@ function searchMovie(movieName){
 }
 
 function movieInfoById(movieId){
-    return axios.get(`movie/${movieId}`)
+    return axios.get(`movie/${movieId}?append_to_response=credits,images,keywords,videos`)
         .then(response => {
             return new Promise((resolve, reject) => {
                 resolve(response.data);
@@ -48,18 +49,20 @@ function movieInfoByTitle(movieTitle, releaseYear){
 }
 
 function downloadMovieAssets(movie){
+    let destinationDirectory = path.join("movies", movie.id.toString());
+
 	return Promise.all([
 		//Download poster
 		downloadsManager.downloadAsset(
 			config.posterUrl + movie.poster_path,
-			movie.id.toString(),
+            destinationDirectory,
 			config.posterFileName
 		),
 
 		//Download backdrop
 		downloadsManager.downloadAsset(
 			config.backdropUrl + movie.backdrop_path,
-			movie.id.toString(),
+            destinationDirectory,
 			config.backdropFileName
 		)
 	]);

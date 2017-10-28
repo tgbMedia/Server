@@ -15,6 +15,7 @@ const _ = require('lodash'),
 
 //TODO: https://jwt.io
 
+
 emitter.on(events.newMedia, (file, mediaItem) => {
     logger.silly(`New media ${file.path}, ${mediaItem.original_title}`);
 });

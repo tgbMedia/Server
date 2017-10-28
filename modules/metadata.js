@@ -142,14 +142,45 @@ function newMediaFile(dir, filePath, mediaType){
 				return callback('No file details', null);
 
 			//Create or update item in the database
-			await models[mediaType].upsert(fileDetails);
+            let mediaItem = await models[mediaType].findById(fileDetails.id);
 
-			//Download assets
-			switch(mediaType){
-				case 'movies':
-					await tmdb.downloadMovieAssets(fileDetails);
-					break;
-			}
+            //This media item is already exists in the database?
+            if(mediaItem == null){
+                await models[mediaType].create(fileDetails);
+
+                //Download assets
+                switch(mediaType){
+                    case 'movies':
+                        await tmdb.downloadMovieAssets(fileDetails);
+
+                        //Cast
+                        _.forEach(fileDetails.credits.cast, async (actor) => {
+                            try{
+                                let person = await models.person.findById(actor.id);
+
+                                if(person == null)
+                                {
+                                    person = await models.person.create(actor);
+                                }
+
+                                person.addMovie(fileDetails.id);
+                            }
+                            catch(err){
+                                logger.error({
+                                    message: `Failed to associate actor to movie`,
+                                    extra: {
+                                        movie: fileDetails,
+                                        actor: actor,
+                                        error: err.message
+                                    }
+                                });
+                            }
+
+                        });
+
+                        break;
+                }
+            }
 
 			//Create new media file
 			let mediaFile = await models.utils.createMediaFile(dir.id, fileDetails.id, filePath);
